@@ -23,23 +23,34 @@ import os
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
 
-class MainHandler(webapp2.RequestHandler):
+
+
+class Handler(webapp2.RequestHandler):
+    def write(self, *args, **kwargs):
+        self.response.out.write(*args, **kwargs)
+
+    def render_str(self, template_file, **params):
+        template = jinja_env.get_template(template_file)
+        return template.render(params)
+
+    def render(self, template, **kwargs):
+        self.write(self.render_str(template, **kwargs))
+
+
+class MainHandler(Handler):
     def get(self):
         self.response.write('Hello world!')
 
 
-class BlogDisplay(webapp2.RequestHandler):
+class BlogDisplay(Handler):
     def get(self):
-        t = jinja_env.get_template("blogdisplay.html")
-        content = t.render()
-        self.response.write(content)
+        self.render("blogdisplay.html")
+
 
 class NewPost(webapp2.RequestHandler):
     def post(self):
         #self.request.get('Stuff')
-        t = jinja_env.get_template("newpost.html")
-        content = t.render()
-        self.response.write(content)
+        self.render("newpost.html")
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
