@@ -77,10 +77,14 @@ class NewPost(Handler):
             self.redirect("/blog")
 
 
+class ViewPostHandler(Handler):
+    def get(self, id):
+        self.write(id)
 
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/blog', BlogDisplay),
-    ('/newpost', NewPost)
+    ('/newpost', NewPost),
+    webapp2.Route('/blog/<id:\d+>', ViewPostHandler)
 ], debug=True)
