@@ -79,7 +79,14 @@ class NewPost(Handler):
 
 class ViewPostHandler(Handler):
     def get(self, id):
-        self.write(id)
+        post = []
+        post.append(Post.get_by_id(int(id)))
+        if post[0] == None:
+            error = "There is no post with that ID"
+        else:
+            error = ""
+        self.render("blogdisplay.html", error=error, post_list=post)
+
 
 
 app = webapp2.WSGIApplication([
