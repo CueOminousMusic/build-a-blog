@@ -55,10 +55,26 @@ class MainHandler(Handler):
 
 class BlogDisplay(Handler):
     def get(self):
-        
-        post_list = get_posts(5, 0)
+        pageNum = self.request.get('page')
+        page_limit = 5
+        if not pageNum or pageNum[0]=='-':
+            pageNum = 0
+        offset = int(pageNum) * page_limit - page_limit
+        if offset < 0:
+            offset = 0
 
-        self.render("blogdisplay.html", error="", post_list=post_list)
+        post_list = get_posts(page_limit, offset)
+
+        next_link = ['','']
+        prev_link = ['','']
+        if post_list.count(offset=offset+page_limit, limit=page_limit) > 0:
+            next_link[0] = "\\blog?page=%s" % (str(int(pageNum)+1),)
+            next_link[1] = "Next Page"
+        if post_list.count(offset=offset-page_limit, limit=page_limit) > 0 and pageNum > 0:
+            prev_link[0] = "\\blog?page=%s" % (str(int(pageNum)-1),)
+            prev_link[1] = "Previous Page"
+
+        self.render("blogdisplay.html", error="", post_list=post_list, next_link=next_link, prev_link=prev_link)
 
 
 class NewPost(Handler):
