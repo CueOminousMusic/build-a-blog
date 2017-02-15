@@ -55,7 +55,8 @@ class MainHandler(Handler):
 
 class BlogDisplay(Handler):
     def get(self):
-        post_list = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC LIMIT 5")
+        
+        post_list = get_posts(5, 0)
 
         self.render("blogdisplay.html", error="", post_list=post_list)
 
