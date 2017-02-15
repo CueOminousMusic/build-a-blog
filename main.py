@@ -32,7 +32,9 @@ class Post(db.Model):
     postContent = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
 
-
+def get_posts(limit, offset):
+    post_list = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC LIMIT  %s OFFSET %s" % (limit,offset))
+    return post_list
 
 class Handler(webapp2.RequestHandler):
     def write(self, *args, **kwargs):
@@ -74,7 +76,7 @@ class NewPost(Handler):
         else:
             post = Post(title=escaped_title, postContent=escaped_postContent)
             post.put()
-            self.redirect("/blog")
+            self.redirect("/blog/"+str(post.key().id()))
 
 
 class ViewPostHandler(Handler):
