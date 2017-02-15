@@ -17,11 +17,20 @@
 import webapp2
 import jinja2
 import os
+import cgi
+from google.appengine.ext import db
 
 
 # set up jinja
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
+                                autoescape = True)
+
+
+class Post(db.Model):
+    title = db.StringProperty(required = True)
+    postContent = db.TextProperty(required = True)
+    created = db.DateTimeProperty(auto_now_add = True)
 
 
 
@@ -44,13 +53,31 @@ class MainHandler(Handler):
 
 class BlogDisplay(Handler):
     def get(self):
-        self.render("blogdisplay.html")
+        post_list = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC LIMIT 5")
+
+        self.render("blogdisplay.html", error="", post_list=post_list)
 
 
-class NewPost(webapp2.RequestHandler):
+class NewPost(Handler):
+    def get(self):
+        self.render("newpost.html", title="", postContent="", error="")
+
     def post(self):
-        #self.request.get('Stuff')
-        self.render("newpost.html")
+        title = self.request.get('title')
+        postContent = self.request.get('postContent')
+        escaped_title = cgi.escape(title, quote=True)
+        escaped_postContent = cgi.escape(postContent, quote=True)
+
+        if title == "" or postContent == "":
+            error = "You need both a Title and Content."
+            self.render("newpost.html", error=error, title=escaped_title, postContent=postContent)
+        else:
+            post = Post(title=escaped_title, postContent=escaped_postContent)
+            post.put()
+            self.redirect("/blog")
+
+
+
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),

@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-Blog Content
+<ul>
+{% for Post in post_list %}
+    <div class=PostContainer>
+          <div class="PostTitle"><h3>{{Post.title}}<h3></div>
+          <div class="PostContent">{{Post.postContent}}</div>
+    </div><br>
+{% endfor %}
+</ul>
 {% endblock %}
