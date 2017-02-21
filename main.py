@@ -104,7 +104,7 @@ class ViewPostHandler(Handler):
             error = "There is no post with that ID"
         else:
             error = ""
-        self.render("blogdisplay.html", error=error, post_list=post)
+        self.render("singlepost.html", error=error, post_list=post)
 
 
 
